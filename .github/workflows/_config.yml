@@ -1,0 +1,5 @@
+# _config.yml
+include:
+  - "**/*.png"
+  - "**/*.gif"
+  - "**/*.pdf"

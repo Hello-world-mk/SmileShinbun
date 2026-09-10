@@ -1,24 +1,45 @@
-name: Generate Directory Listing
+name: Deploy Jekyll Site with Assets
 
 on:
   push:
     branches:
-      - main # または master
+      - main  # または master
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps: deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ディレクトリ一覧のHTMLを自動生成するアクションの例
-      - name: Generate Directory Listing
-        uses: jayanta525/github-pages-directory-listing@v4.0.0
-        with:
-          FOLDER: "." # 一覧化したい対象フォルダ
+      # GitHub公式のJekyll環境セットアップ
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
-      # 生成されたインデックスをGitHub Pagesにデプロイ（またはプッシュ）するステップをここに記述します
+      # GitHub公式のJekyllビルド（ここで自動的にpng, gif, pdf等も処理されます）
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+
+      # ビルドされた成果物をアップロード
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+
+      # GitHub Pagesへデプロイ（Web公開）
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

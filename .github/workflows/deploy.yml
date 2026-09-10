@@ -3,10 +3,12 @@ name: Generate Directory Listing and Deploy
 on:
   push:
     branches:
-      - main # 💡 もしブランチ名が「master」ならここを master に書き換えてください
+      - main # 💡 もしブランチ名が「master」なら master に書き換えてください
 
 permissions:
-  contents: write # ページ生成後のプッシュに必要
+  contents: read
+  pages: write      # GitHub Pagesへのデプロイに必要
+  id-token: write   # 安全な認証に必要
 
 jobs:
   build:
@@ -15,13 +17,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # SmileShinbun内の全ファイル・ディレクトリの一覧HTMLを自動生成
-      - name: Generate Directory Listing Action
-        uses: yKicchan/generate-directory-listing-action@v1.1.0
-
-      # 生成された一覧ページを含めてGitHub Pages用（gh-pagesブランチ）にデプロイ
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      # 🛠️ 安定した別のActionでファイル一覧（index.html）を自動生成
+      - name: Generate Directory Listing
+        uses: JayRizzo/directory-listing-action@v0.0.3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+          # 一覧に含めたくないファイル（設定ファイルなど）を除外
+          exclude: '.git* .github*'
+
+      # GitHub Pages用にファイルをアップロード
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      # GitHub Pagesへ安全に公開
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

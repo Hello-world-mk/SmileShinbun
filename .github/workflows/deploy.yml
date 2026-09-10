@@ -1,0 +1,27 @@
+name: Generate Directory Listing and Deploy
+
+on:
+  push:
+    branches:
+      - main # 💡 もしブランチ名が「master」ならここを master に書き換えてください
+
+permissions:
+  contents: write # ページ生成後のプッシュに必要
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # SmileShinbun内の全ファイル・ディレクトリの一覧HTMLを自動生成
+      - name: Generate Directory Listing Action
+        uses: yKicchan/generate-directory-listing-action@v1.1.0
+
+      # 生成された一覧ページを含めてGitHub Pages用（gh-pagesブランチ）にデプロイ
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./

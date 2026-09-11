@@ -78,7 +78,7 @@ async function loadFiles() {
                 li.className = 'file-item';
                 
                 if (item.type === 'dir') {
-                    li.innerHTML = `<span class="directory">${item.name}</span>`;
+                    li.innerHTML = `<span class="directory">📁 ${item.name}</span>`;
                     li.onclick = () => navigateTo(item.path);
                 } else {
                     const fileUrl = item.path;

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .player-container {
+            width: 100%;
+            max-width: 600px;
+            background: #111;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+        
+        .title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 18px;
+            color: #aaa;
+        }
+        
+        audio, video {
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #333;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+        }
+        
+        .back-button:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="player-container">
+        <div class="title" id="title"></div>
+        <div id="player-content"></div>
+        <button class="back-button" onclick="history.back()">← Back</button>
+    </div>
+
+    <script>
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
+        function getFileExtension(filename) {
+            return filename.split('.').pop().toLowerCase();
+        }
+        
+        const filePath = getQueryParam('file');
+        const fileName = getQueryParam('name');
+        
+        if (filePath && fileName) {
+            document.getElementById('title').textContent = fileName;
+            const ext = getFileExtension(fileName);
+            const playerContent = document.getElementById('player-content');
+            
+            if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) {
+                playerContent.innerHTML = `<audio controls><source src="${filePath}" type="audio/${ext === 'mp3' ? 'mpeg' : ext}">Your browser does not support the audio element.</audio>`;
+            } else if (['mp4', 'webm', 'ogv', 'mov'].includes(ext)) {
+                playerContent.innerHTML = `<video controls><source src="${filePath}" type="video/${ext}">Your browser does not support the video element.</video>`;
+            }
+        }
+    </script>
+</body>
+</html>

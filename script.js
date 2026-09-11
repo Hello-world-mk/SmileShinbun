@@ -2,7 +2,6 @@ const REPO_OWNER = 'Hello-world-mk';
 const REPO_NAME = 'SmileShinbun';
 const API_BASE = 'https://api.github.com';
 let currentPath = '';
-let loadingIndicator = null;
 
 function formatSize(bytes) {
     if (bytes === 0) return '';
@@ -45,11 +44,14 @@ async function loadFiles() {
     loadingEl.style.display = 'block';
     errorEl.innerHTML = '';
     listEl.innerHTML = '';
-    loadingIndicator = true;
 
     try {
         const url = `${API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${currentPath}`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: {
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
 
         if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
@@ -60,7 +62,6 @@ async function loadFiles() {
         if (!Array.isArray(items)) {
             errorEl.innerHTML = 'This path is a file, not a directory.';
             loadingEl.style.display = 'none';
-            loadingIndicator = null;
             return;
         }
 
@@ -80,7 +81,8 @@ async function loadFiles() {
                     li.innerHTML = `<span class="directory">${item.name}</span>`;
                     li.onclick = () => navigateTo(item.path);
                 } else {
-                    li.innerHTML = `<a href="${item.html_url}" target="_blank" class="file-link">${item.name}</a><span class="file-size">${formatSize(item.size)}</span>`;
+                    const fileUrl = item.path;
+                    li.innerHTML = `<a href="${fileUrl}" target="_blank" class="file-link">${item.name}</a><span class="file-size">${formatSize(item.size)}</span>`;
                 }
                 
                 listEl.appendChild(li);
@@ -88,13 +90,11 @@ async function loadFiles() {
         }
 
         loadingEl.style.display = 'none';
-        loadingIndicator = null;
 
     } catch (error) {
         console.error('Error:', error);
         errorEl.innerHTML = `Error: ${error.message}`;
         loadingEl.style.display = 'none';
-        loadingIndicator = null;
     }
 }
 

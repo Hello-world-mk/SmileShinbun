@@ -3,22 +3,12 @@ const REPO_NAME = 'SmileShinbun';
 const API_BASE = 'https://api.github.com';
 let currentPath = '';
 
-const MEDIA_EXTENSIONS = ['mp3', 'mp4', 'wav', 'ogg', 'm4a', 'webm', 'ogv', 'mov'];
-
 function formatSize(bytes) {
     if (bytes === 0) return '';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-function getFileExtension(filename) {
-    return filename.split('.').pop().toLowerCase();
-}
-
-function isMediaFile(filename) {
-    return MEDIA_EXTENSIONS.includes(getFileExtension(filename));
 }
 
 function updateBreadcrumb() {
@@ -91,13 +81,8 @@ async function loadFiles() {
                     li.innerHTML = `<span class="directory">📁 ${item.name}</span>`;
                     li.onclick = () => navigateTo(item.path);
                 } else {
-                    if (isMediaFile(item.name)) {
-                        const playerUrl = `player.html?file=${encodeURIComponent(item.path)}&name=${encodeURIComponent(item.name)}`;
-                        li.innerHTML = `<a href="${playerUrl}" class="file-link">${item.name}</a><span class="file-size">${formatSize(item.size)}</span>`;
-                    } else {
-                        const fileUrl = item.path;
-                        li.innerHTML = `<a href="${fileUrl}" target="_blank" class="file-link">${item.name}</a><span class="file-size">${formatSize(item.size)}</span>`;
-                    }
+                    const fileUrl = item.path;
+                    li.innerHTML = `<a href="${fileUrl}" target="_blank" class="file-link">${item.name}</a><span class="file-size">${formatSize(item.size)}</span>`;
                 }
                 
                 listEl.appendChild(li);
